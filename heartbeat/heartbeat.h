@@ -1,0 +1,6 @@
+typedef enum {
+  sOFF,
+  sRECEIVING_HEARTBEAT,
+  sSTORING_HEARTBEAT,
+  sSENDING_HEARTBEAT,
+} state;
