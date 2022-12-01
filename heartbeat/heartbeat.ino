@@ -41,6 +41,8 @@ void setup() {
   CURRENT_STATE = sOFF;
 
   setup_wifi();
+  setupFlatlineTimer();
+  startFlatlineTimer();
 }
 
 void loop() {
@@ -90,6 +92,9 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
     }
     break;
   case sSTORING_HEARTBEAT:
+    // reset the flatline timer
+    restartFlatlineTimer();
+
     Serial.print("most recent heartbeat");
     Serial.println(mostRecentHeartbeat);
     if (bufferFull()) {
@@ -123,4 +128,5 @@ void updateInputs() {
 // Interrupt Service Routines
 /** Clear buffer if no heartbeat for 5 seconds (based on TC implementation). */
 void TC3_Handler() {
+  Serial.println("Resetting the buffer");
 }
