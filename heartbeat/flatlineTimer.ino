@@ -1,7 +1,7 @@
 
 const int CLOCKFREQ = 8000 / (2) * 1000; // FIXME;
 
-void setupTimer() {
+void setupFlatlineTimer() {
   // Configure and enable GCLK4 for TC:
   GCLK->GENDIV.reg = GCLK_GENDIV_DIV(0) | GCLK_GENDIV_ID(4); // do not divide gclk 4
   while (GCLK->STATUS.bit.SYNCBUSY)
@@ -29,7 +29,7 @@ void setupTimer() {
   Serial.println("Initialized timer!");
 }
 
-void startTimer() {
+void startFlatlineTimer() {
   int freq = 1; // FIXME: should be a frequency of 0.2, but make sure this works first
 
   // Turn off interrupts to TC3 on MC0 when configuring
@@ -50,11 +50,11 @@ void startTimer() {
 }
 
 /** Restart the timer from the beginning. */
-void restartTimer() {
+void restartFlatlineTimer() {
   TC3->COUNT16.INTENCLR.reg |= TC_INTENCLR_MC0;
   TC3->COUNT16.CTRLA.reg &= ~TC_CTRLA_ENABLE;
 
-  startTimer();
+  startFlatlineTimer();
   Serial.println("Restarted timer!");
 
   // TODO (step 8a): Reference pin with PORT->Group[PORTB].register_name.reg
