@@ -1,4 +1,6 @@
+#include "buffer.ino"
 #include "heartbeat.h"
+#include "watchdog.ino"
 
 int inPin = A0;
 int threshold = 1000;
@@ -49,6 +51,9 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
   state nextState;
   switch (curState) {
   case sOFF:
+    // pet watchdog if off
+    petWatchdog();
+
     Serial.println("off");
     if (off) {
       nextState = sOFF;
@@ -59,6 +64,11 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
     }
     break;
   case sRECEIVING_HEARTBEAT:
+    // pet watchdog if there is a sensor signal
+    if (sensorSignal >= 5) {
+      petWatchdog();
+    }
+
     if (off) {
       nextState = sSENDING_HEARTBEAT;
     } else if (sensorSignal > threshold && previouslyBelowThreshold) {
