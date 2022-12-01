@@ -4,7 +4,7 @@
 
 // TODO:
 // deal with rollover
-// 
+//
 
 const int bufLen = 5;
 int bufStart = 0;
@@ -39,7 +39,7 @@ float bufAvg() {
     int endIndex = (bufEnd + bufLen - 1) % bufLen;
     uint32_t endEl = buf[endIndex];
     uint32_t startEl = buf[bufStart];
-    float avgInterval = (endEl - startEl) / ((float) bufLen - 1);
+    float avgInterval = (endEl - startEl) / ((float)bufLen - 1);
     float avgBpm = 60.0 * 1000 / avgInterval;
     interrupts();
 

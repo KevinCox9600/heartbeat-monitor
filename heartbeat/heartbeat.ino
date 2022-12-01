@@ -20,12 +20,11 @@ volatile bool off = true;
 state CURRENT_STATE;
 bool previouslyBelowThreshold = true;
 
-
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  while (!Serial);
+  while (!Serial)
+    ;
   pinMode(inPin, INPUT);
   pinMode(buttonPin, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);
@@ -46,57 +45,57 @@ void togglePower() {
 }
 
 state updateFsm(state curState, uint32_t mils, int sensorSignal) {
-//  Serial.println(curState);
+  //  Serial.println(curState);
   state nextState;
-  switch(curState) {
-    case sOFF:
-      Serial.println("off");
-      if (off) {
-        nextState = sOFF;
-      } else {
-        savedClock = mils;
-        Serial.println("on");
-        nextState = sRECEIVING_HEARTBEAT;
-      }
-      break;
-    case sRECEIVING_HEARTBEAT:
-      if (off) {
-        nextState = sSENDING_HEARTBEAT;
-      } else if (sensorSignal > threshold && previouslyBelowThreshold) {
-        mostRecentHeartbeat = millis();
-        previouslyBelowThreshold = false;
-        nextState = sSTORING_HEARTBEAT;
-      } else if (sensorSignal <= threshold) {
-        previouslyBelowThreshold = true;
-        nextState = sRECEIVING_HEARTBEAT;
-      } else {
-        nextState = sRECEIVING_HEARTBEAT;
-      }
-      break;
-    case sSTORING_HEARTBEAT:
-      Serial.print("most recent heartbeat");
-      Serial.println(mostRecentHeartbeat);
-      if (bufferFull()) {
-        bufPush(mostRecentHeartbeat);
-        nextState = sSENDING_HEARTBEAT;
-      } else {
-        bufPush(mostRecentHeartbeat);
-        nextState = sRECEIVING_HEARTBEAT;
-      }
-      break;
-    case sSENDING_HEARTBEAT:
-      if (off) {
-        clearBuf();
-        nextState = sOFF;
-      } else {
-        Serial.print("avg: ");
-        printBuf();
-        Serial.println(bufAvg());
-        nextState = sRECEIVING_HEARTBEAT;
-      }
-      break;
+  switch (curState) {
+  case sOFF:
+    Serial.println("off");
+    if (off) {
+      nextState = sOFF;
+    } else {
+      savedClock = mils;
+      Serial.println("on");
+      nextState = sRECEIVING_HEARTBEAT;
+    }
+    break;
+  case sRECEIVING_HEARTBEAT:
+    if (off) {
+      nextState = sSENDING_HEARTBEAT;
+    } else if (sensorSignal > threshold && previouslyBelowThreshold) {
+      mostRecentHeartbeat = millis();
+      previouslyBelowThreshold = false;
+      nextState = sSTORING_HEARTBEAT;
+    } else if (sensorSignal <= threshold) {
+      previouslyBelowThreshold = true;
+      nextState = sRECEIVING_HEARTBEAT;
+    } else {
+      nextState = sRECEIVING_HEARTBEAT;
+    }
+    break;
+  case sSTORING_HEARTBEAT:
+    Serial.print("most recent heartbeat");
+    Serial.println(mostRecentHeartbeat);
+    if (bufferFull()) {
+      bufPush(mostRecentHeartbeat);
+      nextState = sSENDING_HEARTBEAT;
+    } else {
+      bufPush(mostRecentHeartbeat);
+      nextState = sRECEIVING_HEARTBEAT;
+    }
+    break;
+  case sSENDING_HEARTBEAT:
+    if (off) {
+      clearBuf();
+      nextState = sOFF;
+    } else {
+      Serial.print("avg: ");
+      printBuf();
+      Serial.println(bufAvg());
+      nextState = sRECEIVING_HEARTBEAT;
+    }
+    break;
   }
-  
+
   return nextState;
 }
 
