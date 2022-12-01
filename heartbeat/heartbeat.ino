@@ -112,3 +112,8 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
 void updateInputs() {
   sensorSignal = analogRead(inPin);
 }
+
+// Interrupt Service Routines
+/** Clear buffer if no heartbeat for 5 seconds (based on TC implementation). */
+void TC3_Handler() {
+}
