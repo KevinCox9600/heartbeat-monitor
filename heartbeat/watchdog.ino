@@ -5,7 +5,7 @@ void configWatchdog() {
   NVIC_SetPriority(WDT_IRQn, 0);
   NVIC_EnableIRQ(WDT_IRQn);
 
-  // TODO: Configure and enable WDT GCLK:
+  // Configure and enable WDT GCLK:
   GCLK->GENDIV.reg = GCLK_GENDIV_DIV(4) | GCLK_GENDIV_ID(5);
   while (GCLK->STATUS.bit.SYNCBUSY)
     ;
@@ -17,15 +17,15 @@ void configWatchdog() {
   while (GCLK->STATUS.bit.SYNCBUSY)
     ;
 
-  // TODO: Configure and enable WDT:
-  // use WDT->CONFIG.reg, WDT->EWCTRL.reg, WDT->CTRL.reg
-  WDT->CONFIG.reg = 0x9u;
-  WDT->EWCTRL.reg = WDT_EWCTRL_EWOFFSET_8;
+  // Configure and enable WDT:
+  // TODO: check that this works, changed from 9 to A
+  WDT->CONFIG.reg = WDT_CONFIG_PER_10; // 0xAu;
+  // WDT->EWCTRL.reg = WDT_EWCTRL_EWOFFSET_8;
   WDT->CTRL.reg = WDT_CTRL_ENABLE;
   while (WDT->STATUS.bit.SYNCBUSY)
     ;
 
-  // TODO: Enable early warning interrupts on WDT:
+  // Enable early warning interrupts on WDT:
   // reference WDT registers with WDT->register_name.reg
   // WDT->INTENSET.reg = WDT_INTENSET_EW;
 }
