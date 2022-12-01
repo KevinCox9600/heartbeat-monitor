@@ -1,6 +1,11 @@
 #include "buffer.ino"
 #include "heartbeat.h"
 #include "watchdog.ino"
+#include <SPI.h>
+#include <WiFi101.h>
+
+WiFiClient client;
+char buffer[200];
 
 int inPin = A0;
 int threshold = 1000;
@@ -34,6 +39,8 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(buttonPin), togglePower, RISING);
 
   CURRENT_STATE = sOFF;
+
+  setup_wifi();
 }
 
 void loop() {
