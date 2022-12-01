@@ -1,4 +1,11 @@
 
+/**
+ * Detects when there has not been a heartbeat for a long time.
+ *
+ * Is to be restarted at every heartbeat.
+ * Will trigger interrupt every 5 seconds. TODO: fix and verify this
+ */
+
 const int CLOCKFREQ = 8000 / (2) * 1000; // FIXME;
 
 void setupFlatlineTimer() {
