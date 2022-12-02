@@ -1,6 +1,6 @@
-#include "buffer.ino"
+//#include "buffer.ino"
 #include "heartbeat.h"
-#include "watchdog.ino"
+//#include "watchdog.ino"
 #include <SPI.h>
 #include <WiFi101.h>
 
@@ -29,6 +29,7 @@ bool previouslyBelowThreshold = true;
 
 void setup() {
   // put your setup code here, to run once:
+  Serial.println("starting");
   Serial.begin(9600);
   while (!Serial)
     ;
@@ -41,8 +42,8 @@ void setup() {
   CURRENT_STATE = sOFF;
 
   setup_wifi();
-  setupFlatlineTimer();
-  startFlatlineTimer();
+  // setupFlatlineTimer();
+  // startFlatlineTimer();
 }
 
 void loop() {
@@ -61,7 +62,7 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
   switch (curState) {
   case sOFF:
     // pet watchdog if off
-    petWatchdog();
+    // petWatchdog();
 
     Serial.println("off");
     if (off) {
@@ -74,9 +75,9 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
     break;
   case sRECEIVING_HEARTBEAT:
     // pet watchdog if there is a sensor signal
-    if (sensorSignal >= 5) {
-      petWatchdog();
-    }
+    // if (sensorSignal >= 5) {
+    //   petWatchdog();
+    // }
 
     if (off) {
       nextState = sSENDING_HEARTBEAT;
@@ -93,7 +94,7 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
     break;
   case sSTORING_HEARTBEAT:
     // reset the flatline timer
-    restartFlatlineTimer();
+    // restartFlatlineTimer();
 
     Serial.print("most recent heartbeat");
     Serial.println(mostRecentHeartbeat);
