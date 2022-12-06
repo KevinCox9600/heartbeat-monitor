@@ -37,7 +37,7 @@ void setupFlatlineTimer() {
 }
 
 void startFlatlineTimer() {
-  int freq = 1; // FIXME: should be a frequency of 0.2, but make sure this works first
+  float freq = 0.1; // FIXME: should be a frequency of 0.2, but make sure this works first
 
   // Turn off interrupts to TC3 on MC0 when configuring
   TC3->COUNT16.INTENCLR.reg |= TC_INTENCLR_MC0;
@@ -46,14 +46,17 @@ void startFlatlineTimer() {
   TC3->COUNT16.CTRLA.reg |= TC_CTRLA_ENABLE | TC_CTRLA_MODE_COUNT16 | TC_CTRLA_PRESCALER_DIV1024 | TC_CTRLA_PRESCSYNC_PRESC | TC_CTRLA_WAVEGEN_MFRQ;
   while (TC3->COUNT16.STATUS.bit.SYNCBUSY)
     ;
-  TC3->COUNT16.CC[0].reg = CLOCKFREQ / (1024 * freq);
+  int regNum = 5 * CLOCKFREQ / (1024 * freq);
+  TC3->COUNT16.CC[0].reg = (int) CLOCKFREQ / (1024 * freq);
+//  Serial.print("CC regNum: ");
+  Serial.println(regNum);
   while (TC3->COUNT16.STATUS.bit.SYNCBUSY)
     ;
 
   // Turn interrupts to TC3 on MC0 back on when done configuring
   TC3->COUNT16.INTENSET.reg |= TC_INTENSET_MC0;
 
-  Serial.println("Started timer");
+//  Serial.println("Started timer");
 }
 
 /** Restart the timer from the beginning. */
@@ -62,7 +65,7 @@ void restartFlatlineTimer() {
   TC3->COUNT16.CTRLA.reg &= ~TC_CTRLA_ENABLE;
 
   startFlatlineTimer();
-  Serial.println("Restarted timer!");
+//  Serial.println("Restarted timer!");
 
   // TODO (step 8a): Reference pin with PORT->Group[PORTB].register_name.reg
   // PORT->Group[PORTB].OUTCLR.reg |= 1 << PB_PIN;
