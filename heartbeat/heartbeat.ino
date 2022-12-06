@@ -50,7 +50,7 @@ void setup() {
 void loop() {
   updateInputs();
   CURRENT_STATE = updateFsm(CURRENT_STATE, millis(), sensorSignal);
-  Serial.println(sensorSignal);
+  // Serial.println(sensorSignal);
   delay(10);
 }
 
