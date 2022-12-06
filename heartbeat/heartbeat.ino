@@ -44,12 +44,13 @@ void setup() {
   //  setup_wifi();
   setupFlatlineTimer();
   startFlatlineTimer();
+  configWatchdog();
 }
 
 void loop() {
   updateInputs();
   CURRENT_STATE = updateFsm(CURRENT_STATE, millis(), sensorSignal);
-  //  Serial.println(sensorSignal);
+  Serial.println(sensorSignal);
   delay(10);
 }
 
@@ -63,7 +64,7 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
   switch (curState) {
   case sOFF:
     // pet watchdog if off
-    // petWatchdog();
+    petWatchdog();
 
     Serial.println("off");
     if (off) {
@@ -76,9 +77,9 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
     break;
   case sRECEIVING_HEARTBEAT:
     // pet watchdog if there is a sensor signal
-    // if (sensorSignal >= 5) {
-    //   petWatchdog();
-    // }
+    if (sensorSignal >= 5) {
+      petWatchdog();
+    }
 
     if (off) {
       nextState = sSENDING_HEARTBEAT;
