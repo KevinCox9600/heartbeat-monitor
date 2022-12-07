@@ -37,20 +37,22 @@ void setup() {
   pinMode(buttonPin, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);
 
-  attachInterrupt(digitalPinToInterrupt(buttonPin), togglePower, RISING);
+  attachInterrupt(digitalPinToInterrupt(buttonPin), togglePower, FALLING);
 
   CURRENT_STATE = sOFF;
 
-  //  setup_wifi();
-  setupFlatlineTimer();
-  startFlatlineTimer();
-  configWatchdog();
+  setup_wifi();
+//  setupFlatlineTimer();
+//  startFlatlineTimer();
+//  configWatchdog();
+//  post_heartrate_to_website(404);
+  Serial.print("done with post");
 }
 
 void loop() {
   updateInputs();
   CURRENT_STATE = updateFsm(CURRENT_STATE, millis(), sensorSignal);
-  // Serial.println(sensorSignal);
+//  Serial.println(sensorSignal);
   delay(10);
 }
 
@@ -65,6 +67,7 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
   case sOFF:
     // pet watchdog if off
     petWatchdog();
+//    post_heartrate_to_website(1000);
 
     Serial.println("off");
     if (off) {
@@ -115,7 +118,9 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
     } else {
       Serial.print("avg: ");
       printBuf();
-      Serial.println(bufAvg());
+      float avg = bufAvg();
+      Serial.println(avg);
+      post_heartrate_to_website((int) avg);
       nextState = sRECEIVING_HEARTBEAT;
     }
     break;
