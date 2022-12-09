@@ -17,7 +17,7 @@ float prev[5];
 int ind = 0;
 
 // pins
-int buttonPin = 5;
+int buttonPin = 6;
 
 // fsm vars
 uint32_t savedClock = 0;
@@ -45,8 +45,6 @@ void setup() {
   setupFlatlineTimer();
   startFlatlineTimer();
   configWatchdog();
-  post_heartrate_to_website(404);
-  Serial.print("done with post");
 }
 
 void loop() {
@@ -66,8 +64,6 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
   case sOFF:
     // pet watchdog if off
     petWatchdog();
-    post_heartrate_to_website(404);
-
     Serial.println("off");
     if (off) {
       nextState = sOFF;
@@ -113,9 +109,10 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
   case sSENDING_HEARTBEAT:
     if (off) {
       clearBuf();
+      post_heartrate_to_website(404);
       nextState = sOFF;
     } else {
-      detachInterrupt(buttonPin);
+      //detachInterrupt(buttonPin);
       Serial.print("avg: ");
       printBuf();
       float avg = bufAvg();
