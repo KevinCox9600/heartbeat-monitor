@@ -1,6 +1,9 @@
 char ssid[] = "Brown-Guest";  // network SSID (name)
 char pass[] = ""; // for networks that require a password
 int status = WL_IDLE_STATUS;  // the WiFi radio's status
+WiFiClient client;
+char buffer[200];
+
 
 void setup_wifi() {
   // attempt to connect to WiFi network:
@@ -19,24 +22,16 @@ void setup_wifi() {
   Serial.println();
 }
 
-bool post_heartrate_to_website(int rate) {
-  String data = "{\"heartrate\": \"" + String(rate) + "\"}";
-  if (client.connect("clasersohn.pythonanywhere.com", 80)) {
-    client.println("POST /post HTTP/1.1");
-    client.println("Host: clasersohn.pythonanywhere.com");
-    client.println("Content-Type: application/json");
-    client.print("Content-Length: ");
-    client.println(data.length());
-    client.println();
-    client.println(data);
-    client.println("Connection: close");
-    return true;
-  } else {
-    Serial.println("Failed to fetch webpage");
-    return false;
-  }
+/**
+ * Check if the client is connected.
+*/
+bool client_connected() {
+  return client.connected();
 }
 
+/**
+ * Connect to the server and return whether it was a success.
+*/
 bool connect_to_get() {
   if (client.connect("clasersohn.pythonanywhere.com", 80)) {
     client.println("GET /get HTTP/1.1");
@@ -50,6 +45,9 @@ bool connect_to_get() {
   }
 }
 
+/**
+ * Read the value from the server.
+*/
 int read_from_get() {
   Serial.println("reading");
   int len = client.available();
