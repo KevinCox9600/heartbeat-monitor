@@ -2,13 +2,13 @@
 #include <WiFi101.h>
 #include <SPI.h>
 
+// constants
+int SERVER_OFF = 404;
 
 // FSM vars
 state CURRENT_STATE;
 uint32_t savedClock = 0; // last time saved
 int serverMessage = NULL; // the message from the server
-WiFiClient client;
-char buffer[200];
 
 
 void setup() {
@@ -35,24 +35,26 @@ state updateFsm(state curState, uint32_t mils) {
 
       serverMessage = read_from_get();
 
-      while (serverMessage == 0 && count < 8) {
-        if (!client.connected()) {
+      // try 20 times to read the server message
+      while (serverMessage == 0 && count < 100) {
+        if (!client_connected()) {
           delay(1000);
           if (!connect_to_get()) {
-            Serial.println("error: failed to connect");
-            nextState = sERROR;
-            savedClock = mils;
-            break;
+            delay(1000);
           }
         }
-
-        if (nextState == sERROR) {
-          break;
-        }
         
-        
+        // read the server message
         serverMessage = read_from_get();
+        // increment the count
         count = count + 1;
+      }
+
+      if (count >= 100) {
+        nextState = sERROR;
+        Serial.println("error: couldn't get value in 100+ tries");
+        writeToLCD("ERROR", 0);
+        break; // break out of case
       }
        
        
@@ -61,7 +63,7 @@ state updateFsm(state curState, uint32_t mils) {
         savedClock = mils;
         nextState = sERROR;
       }
-      else if (serverMessage == 404) {
+      else if (serverMessage == SERVER_OFF) {
         savedClock = mils;
         nextState = sOFF;
 
