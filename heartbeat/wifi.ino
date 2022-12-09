@@ -11,11 +11,6 @@ void setup_wifi() {
     delay(10000);
   }
   Serial.println("Connected!");
-  if (connect_to_get()) {
-    Serial.println("fetched webpage");
-  } else {
-    Serial.println("failed to fetch webpage");
-  }
   Serial.println();
 }
 

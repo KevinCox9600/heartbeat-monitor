@@ -42,17 +42,16 @@ void setup() {
   CURRENT_STATE = sOFF;
 
   setup_wifi();
-//  setupFlatlineTimer();
-//  startFlatlineTimer();
-//  configWatchdog();
-//  post_heartrate_to_website(404);
+  setupFlatlineTimer();
+  startFlatlineTimer();
+  configWatchdog();
+  post_heartrate_to_website(404);
   Serial.print("done with post");
 }
 
 void loop() {
   updateInputs();
   CURRENT_STATE = updateFsm(CURRENT_STATE, millis(), sensorSignal);
-//  Serial.println(sensorSignal);
   delay(10);
 }
 
@@ -67,7 +66,7 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
   case sOFF:
     // pet watchdog if off
     petWatchdog();
-//    post_heartrate_to_website(1000);
+    post_heartrate_to_website(404);
 
     Serial.println("off");
     if (off) {
@@ -116,11 +115,14 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
       clearBuf();
       nextState = sOFF;
     } else {
+      detachInterrupt(buttonPin);
       Serial.print("avg: ");
       printBuf();
       float avg = bufAvg();
       Serial.println(avg);
-      post_heartrate_to_website((int) avg);
+      if (avg > 0 && avg < 190) {
+        post_heartrate_to_website((int) avg); 
+      }
       nextState = sRECEIVING_HEARTBEAT;
     }
     break;
