@@ -25,27 +25,36 @@ void loop() {
 
 state updateFsm(state curState, uint32_t mils) {
   state nextState;
+  int count = 0;
   switch (curState) {
     case sRECEIVING:
-      // connect to server
-      // read from server
-      // if failure to connect || bad message
-      // else, assign server message
       if (mils - savedClock < 100) {
         nextState = sRECEIVING;
         break;
       }
-      
+
       serverMessage = read_from_get();
-      Serial.println(serverMessage);
-      if(!client.connected()){
-           delay(1000);
-           if (connect_to_get() == false) {
+
+      while (serverMessage == 0 && count < 8) {
+        if (!client.connected()) {
+          delay(1000);
+          if (!connect_to_get()) {
+            Serial.println("error: failed to connect");
             nextState = sERROR;
             savedClock = mils;
             break;
-           }
-       }
+          }
+        }
+
+        if (nextState == sERROR) {
+          break;
+        }
+        
+        
+        serverMessage = read_from_get();
+        count = count + 1;
+      }
+       
        
       // server message error
       if (serverMessage == 0) {
@@ -55,29 +64,32 @@ state updateFsm(state curState, uint32_t mils) {
       else if (serverMessage == 404) {
         savedClock = mils;
         nextState = sOFF;
+
+        writeToLCD("OFF", serverMessage);
+        updateMotor(0);
+
       } else {
         // message is an integer
           savedClock = mils;
           nextState = sDISPLAY_HEARTBEAT;
+
+          writeToLCD("Heartbeat:", serverMessage);
+          updateMotor(serverMessage);
       }
       break;
     case sOFF:
       // if enough time has passed, try to receive data again
-      if (mils - savedClock >= 6000) {
+      if (mils - savedClock >= 2000) {
         nextState = sRECEIVING;
       } else {
         nextState = sOFF;
-        writeToLCD("OFF", serverMessage);
-        updateMotor(0);
       }
       break;
     case sDISPLAY_HEARTBEAT:
       // if enough time has passed, try to receive data again
-      if (mils - savedClock >= 6000) {
+      if (mils - savedClock >= 2000) {
         nextState = sRECEIVING;
       } else {
-        writeToLCD("Heartbeat:", serverMessage);
-        updateMotor(serverMessage);
         nextState = sDISPLAY_HEARTBEAT;
       }
       break;
