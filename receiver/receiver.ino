@@ -1,12 +1,18 @@
 #include "receiver.h"
+#include <WiFi101.h>
+#include <SPI.h>
 
 // FSM vars
 state CURRENT_STATE;
 uint32_t savedClock = 0; // last time saved
-String serverMessage = NULL; // the message from the server
+int serverMessage = NULL; // the message from the server
+WiFiClient client; // the wifi client to connect to the server
+char buffer[200]; // a buffer to hold incoming messages from the server
 
 void setup() {
+  setup_wifi();
   initializeLCD();
+  initializeMotor();
 }
 
 void loop() {
