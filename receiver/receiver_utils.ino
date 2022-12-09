@@ -2,23 +2,6 @@
 #include <Servo.h>               //Servo library
  
 Servo servo_test;        //initialize a servo object for the connected servo 
-/**
- * Connects to the server.
- * Returns true for successful connection, false otherwise.
-*/
-bool connectToServer() {
-  return true;
-}
-
-/**
- * Reads the current heartbeat value from the server.
- * Returns the value as a string.
-*/
-String readFromServer() {
-  return "80";
-}
-
-//////// MAYBE include the above two in a wifi_utils file
 
 // LCD SCREEN
 // numbers are arduino pins (depends on circuit)
@@ -51,13 +34,4 @@ void initializeMotor(){
 void updateMotor(int rotation) {
   servo_test.write(rotation); 
   delay(1000);
-}
-
-
-// OTHER
-/**
- * Figures out if integer 
-*/
-bool isInteger(String msg) {
-  return true;
 }
