@@ -75,3 +75,25 @@ int read_from_get() {
   return atoi(buffer);
   
 }
+
+int get_server_message() {
+  // try 100 times to read the server message
+  int msg = read_from_get();
+  int count = 0;
+  while (msg == 0 && count < 100) {
+    if (!client_connected()) {
+      delay(1000);
+      if (!connect_to_get()) {
+        break;
+      }
+    }
+    
+    // read the server message
+    msg = read_from_get();
+    // increment the count
+    count = count + 1;
+      delay(50);
+  }
+
+  return msg;
+}

@@ -1,4 +1,5 @@
 #include "receiver.h"
+//#include "test_receiver.h" // uncomment this line to run receiver tests
 #include <WiFi101.h>
 #include <SPI.h>
 
@@ -16,10 +17,16 @@ void setup() {
   initializeLCD();
   initializeMotor();
   delay(1000);
+
+  #ifdef TESTING
+  test_all_tests();
+  #endif
 }
 
 void loop() {
+  #ifndef TESTING
   CURRENT_STATE = updateFsm(CURRENT_STATE, millis());
+  #endif
 }
 
 state updateFsm(state curState, uint32_t mils) {
@@ -32,23 +39,8 @@ state updateFsm(state curState, uint32_t mils) {
         break;
       }
 
-      serverMessage = read_from_get();
-
-      // try 100 times to read the server message
-      while (serverMessage == 0 && count < 100) {
-        if (!client_connected()) {
-          delay(1000);
-          if (!connect_to_get()) {
-            break;
-          }
-        }
-        
-        // read the server message
-        serverMessage = read_from_get();
-        // increment the count
-        count = count + 1;
-         delay(50);
-      }
+      // get server message
+      serverMessage = get_server_message();
 
       if (count >= 100 || serverMessage == 0) {
         nextState = sERROR;
