@@ -1,6 +1,6 @@
-//#include "buffer.ino"
+
 #include "heartbeat.h"
-//#include "watchdog.ino"
+
 #include <SPI.h>
 #include <WiFi101.h>
 
@@ -24,8 +24,10 @@ uint32_t savedClock = 0;
 int sensorSignal = 0;
 uint32_t mostRecentHeartbeat = 0;
 volatile bool off = true;
-state CURRENT_STATE;
 bool previouslyBelowThreshold = true;
+
+state CURRENT_STATE;
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -114,7 +116,7 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
     } else {
       float avg = bufAvg();
       if (avg > 0 && avg < 190) {
-        post_heartrate_to_website((int) avg); 
+        post_heartrate_to_website((int)avg);
         Serial.print("avg: ");
         printBuf();
         Serial.println(avg);
