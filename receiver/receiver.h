@@ -1,6 +1,6 @@
 typedef enum {
-  sRECEIVING,
-  sOFF,
-  sDISPLAY_HEARTBEAT,
-  sERROR,
+  sRECEIVING = 1,
+  sOFF = 2,
+  sDISPLAY_HEARTBEAT = 3,
+  sERROR = 4,
 } state;
