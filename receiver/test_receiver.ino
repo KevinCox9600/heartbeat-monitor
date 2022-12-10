@@ -4,14 +4,23 @@
  * A struct to keep state inputs in one place
  */
 typedef struct {
-  long mils;
+  long mils; // the mils
 } state_inputs;
+
+/**
+ * A struct to hold testing vals related to failing the server.
+*/
+typedef struct {
+  bool fail_to_connect_client;
+  bool fail_to_connect_get;
+  bool fail_to_read_get;
+} server_errors;
 
 /*
  * A struct to keep state variables in one place
  */
 typedef struct {
-  int saved_clock;
+  int saved_clock; 
   int server_message;
 } state_vars;
 
@@ -24,7 +33,7 @@ bool test_transition(
   savedClock = start_vars.saved_clock;
   serverMessage = start_vars.server_message;
 
-  state result_state = updateFsm(start_state, start_state.mils);
+  state result_state = updateFsm(start_state, inputs.mils);
 
   return (result_state == end_state &&
           end_state.saved_clock == savedClock &&
