@@ -28,7 +28,6 @@ bool previouslyBelowThreshold = true;
 
 state CURRENT_STATE;
 
-
 void setup() {
   // put your setup code here, to run once:
   Serial.println("starting");
@@ -100,7 +99,9 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
 
     Serial.print("most recent heartbeat");
     Serial.println(mostRecentHeartbeat);
-    if (bufferFull()) {
+    if (off) {
+      nextState = sSENDING_HEARTBEAT;
+    } else if (bufferFull()) {
       bufPush(mostRecentHeartbeat);
       nextState = sSENDING_HEARTBEAT;
     } else {
