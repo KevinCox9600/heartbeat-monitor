@@ -35,7 +35,7 @@ state updateFsm(state curState, uint32_t mils) {
 
       serverMessage = read_from_get();
 
-      // try 20 times to read the server message
+      // try 100 times to read the server message
       while (serverMessage == 0 && count < 100) {
         if (!client_connected()) {
           delay(1000);
@@ -50,7 +50,7 @@ state updateFsm(state curState, uint32_t mils) {
         count = count + 1;
       }
 
-      if (count >= 100) {
+      if (count >= 100 || serverMessage == 0) {
         nextState = sERROR;
         writeToLCD("ERROR", 0);
         break; // break out of case
@@ -94,6 +94,14 @@ state updateFsm(state curState, uint32_t mils) {
         nextState = sRECEIVING;
       } else {
         nextState = sDISPLAY_HEARTBEAT;
+      }
+      break;
+    case sFLATLINE:
+      // if enough time has passed, try to receive data again
+      if (mils - savedClock >= 2000) {
+        nextState = sRECEIVING;
+      } else {
+        nextState = sFLATLINE;
       }
       break;
     case sERROR:
