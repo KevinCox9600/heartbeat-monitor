@@ -4,7 +4,6 @@
 
 // constants
 int SERVER_OFF = 404;
-int FLATLINE = 444; // TODO: add to server
 
 // FSM vars
 state CURRENT_STATE;
@@ -40,7 +39,7 @@ state updateFsm(state curState, uint32_t mils) {
         if (!client_connected()) {
           delay(1000);
           if (!connect_to_get()) {
-            delay(1000);
+            break;
           }
         }
         
@@ -48,21 +47,13 @@ state updateFsm(state curState, uint32_t mils) {
         serverMessage = read_from_get();
         // increment the count
         count = count + 1;
+         delay(50);
       }
 
       if (count >= 100 || serverMessage == 0) {
         nextState = sERROR;
         writeToLCD("ERROR", 0);
         break; // break out of case
-      }
-
-      if (serverMessage == FLATLINE) {
-        savedClock = mils;
-        nextState = sFLATLINE;
-
-        writeToLCD("FLATLINE", 0);
-        updateMotor(0); // should be flatline
-        break;
       }
        
       if (serverMessage == SERVER_OFF) {
@@ -96,17 +87,9 @@ state updateFsm(state curState, uint32_t mils) {
         nextState = sDISPLAY_HEARTBEAT;
       }
       break;
-    case sFLATLINE:
-      // if enough time has passed, try to receive data again
-      if (mils - savedClock >= 2000) {
-        nextState = sRECEIVING;
-      } else {
-        nextState = sFLATLINE;
-      }
-      break;
     case sERROR:
       // if enough time has passed, try to receive data again
-      if (mils - savedClock >= 2000) {
+      if (mils - savedClock >= 6000) {
         nextState = sRECEIVING;
       } else {
         nextState = sERROR;
