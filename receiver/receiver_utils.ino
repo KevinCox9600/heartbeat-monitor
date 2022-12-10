@@ -22,7 +22,7 @@ void writeToLCD(String msg, int hb) {
   lcd.clear();
   lcd.print(msg);
   lcd.setCursor(0, 1);
-  if(msg != "OFF" || msg != "ERROR" || msg != "FLATLINE"){
+  if(!(msg == "OFF" || msg == "ERROR")){
     lcd.print(hb);
   }
 }
