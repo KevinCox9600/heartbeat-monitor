@@ -4,12 +4,12 @@
 
 // constants
 int SERVER_OFF = 404;
+int FLATLINE = 444; // TODO: add to server
 
 // FSM vars
 state CURRENT_STATE;
 uint32_t savedClock = 0; // last time saved
 int serverMessage = NULL; // the message from the server
-
 
 void setup() {
   Serial.begin(9600);
@@ -52,32 +52,33 @@ state updateFsm(state curState, uint32_t mils) {
 
       if (count >= 100) {
         nextState = sERROR;
-        Serial.println("error: couldn't get value in 100+ tries");
         writeToLCD("ERROR", 0);
         break; // break out of case
       }
-       
-       
-      // server message error
-      if (serverMessage == 0) {
+
+      if (serverMessage == FLATLINE) {
         savedClock = mils;
-        nextState = sERROR;
+        nextState = sFLATLINE;
+
+        writeToLCD("FLATLINE", 0);
+        updateMotor(0); // should be flatline
+        break;
       }
-      else if (serverMessage == SERVER_OFF) {
+       
+      if (serverMessage == SERVER_OFF) {
         savedClock = mils;
         nextState = sOFF;
 
         writeToLCD("OFF", serverMessage);
         updateMotor(0);
-
-      } else {
-        // message is an integer
-          savedClock = mils;
-          nextState = sDISPLAY_HEARTBEAT;
-
-          writeToLCD("Heartbeat:", serverMessage);
-          updateMotor(serverMessage);
+        break;
       }
+      // message is a valid heartbeat
+      savedClock = mils;
+      nextState = sDISPLAY_HEARTBEAT;
+
+      writeToLCD("Heartbeat:", serverMessage);
+      updateMotor(serverMessage);
       break;
     case sOFF:
       // if enough time has passed, try to receive data again
