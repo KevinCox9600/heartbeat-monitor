@@ -2,6 +2,6 @@ typedef enum {
   sRECEIVING,
   sOFF,
   sDISPLAY_HEARTBEAT,
-  sDISPLAY_MESSAGE,
+  sFLATLINE,
   sERROR,
 } state;
