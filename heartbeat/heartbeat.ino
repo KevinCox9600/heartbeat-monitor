@@ -112,13 +112,12 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
       post_heartrate_to_website(404);
       nextState = sOFF;
     } else {
-      //detachInterrupt(buttonPin);
-      Serial.print("avg: ");
-      printBuf();
       float avg = bufAvg();
-      Serial.println(avg);
       if (avg > 0 && avg < 190) {
         post_heartrate_to_website((int) avg); 
+        Serial.print("avg: ");
+        printBuf();
+        Serial.println(avg);
       }
       nextState = sRECEIVING_HEARTBEAT;
     }
