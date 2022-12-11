@@ -1,6 +1,6 @@
 #include <LiquidCrystal.h>
 #include <Servo.h>               //Servo library
- 
+
 Servo servo_test;        //initialize a servo object for the connected servo 
 
 // LCD SCREEN
@@ -19,12 +19,14 @@ void initializeLCD() {
  * Clears the old LCD message and writes a new message and heartbeat.
 */
 void writeToLCD(String msg, int hb) {
+  #ifndef TESTING
   lcd.clear();
   lcd.print(msg);
   lcd.setCursor(0, 1);
   if(!(msg == "OFF" || msg == "ERROR")){
     lcd.print(hb);
   }
+  #endif
 }
 
 // MOTOR
@@ -42,6 +44,8 @@ void initializeMotor(){
  * Update the motor to a specific position.
 */
 void updateMotor(int rotation) {
+  #ifndef TESTING
   servo_test.write(rotation); 
   delay(1000);
+  #endif
 }

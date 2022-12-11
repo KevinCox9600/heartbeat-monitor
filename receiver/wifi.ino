@@ -76,6 +76,7 @@ int read_from_get() {
   
 }
 
+#ifndef TESTING
 int get_server_message() {
   // try 100 times to read the server message
   int msg = read_from_get();
@@ -96,4 +97,14 @@ int get_server_message() {
   }
 
   return msg;
+
 }
+#else 
+int get_server_message() {
+  if (failServer) {
+    return 0;
+  } else {
+    return 60;
+  }
+}
+#endif

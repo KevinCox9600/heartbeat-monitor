@@ -1,5 +1,5 @@
+// #include "test_receiver.h" // uncomment this line to run receiver tests
 #include "receiver.h"
-//#include "test_receiver.h" // uncomment this line to run receiver tests
 #include <WiFi101.h>
 #include <SPI.h>
 
@@ -11,16 +11,21 @@ state CURRENT_STATE;
 uint32_t savedClock = 0; // last time saved
 int serverMessage = NULL; // the message from the server
 
+#ifdef TESTING
+bool failServer = false;
+#endif
+
 void setup() {
   Serial.begin(9600);
+  while (!Serial);
+  #ifdef TESTING
+  test_all_tests();
+  #else
   setup_wifi();
   initializeLCD();
   initializeMotor();
-  delay(1000);
-
-  #ifdef TESTING
-  test_all_tests();
   #endif
+  delay(1000);
 }
 
 void loop() {
