@@ -20,9 +20,9 @@ int ind = 0;
 int buttonPin = 6;
 
 // fsm vars
-uint32_t savedClock = 0;
+// uint32_t savedClock = 0;
 int sensorSignal = 0;
-uint32_t mostRecentHeartbeat = 0;
+// uint32_t mostRecentHeartbeat = 0;
 volatile bool off = true;
 bool previouslyBelowThreshold = true;
 
@@ -30,28 +30,34 @@ state CURRENT_STATE;
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.println("starting");
+  // Serial.println("starting");
   Serial.begin(9600);
   while (!Serial)
     ;
+#ifndef TESTING
   pinMode(inPin, INPUT);
   pinMode(buttonPin, INPUT);
   pinMode(LED_BUILTIN, OUTPUT);
 
   attachInterrupt(digitalPinToInterrupt(buttonPin), togglePower, FALLING);
 
-  CURRENT_STATE = sOFF;
-
   setup_wifi();
   setupFlatlineTimer();
   startFlatlineTimer();
   configWatchdog();
+#else
+  test_all_tests();
+#endif
+
+  CURRENT_STATE = sOFF;
 }
 
 void loop() {
+#ifndef TESTING
   updateInputs();
   CURRENT_STATE = updateFsm(CURRENT_STATE, millis(), sensorSignal);
   delay(10);
+#endif
 }
 
 void togglePower() {
@@ -69,7 +75,7 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
     if (off) {
       nextState = sOFF;
     } else {
-      savedClock = mils;
+      // savedClock = mils;
       Serial.println("on");
       nextState = sRECEIVING_HEARTBEAT;
     }
@@ -83,7 +89,7 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
     if (off) {
       nextState = sSENDING_HEARTBEAT;
     } else if (sensorSignal > threshold && previouslyBelowThreshold) {
-      mostRecentHeartbeat = millis();
+      // mostRecentHeartbeat = millis();
       previouslyBelowThreshold = false;
       nextState = sSTORING_HEARTBEAT;
     } else if (sensorSignal <= threshold) {
@@ -98,14 +104,14 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
     restartFlatlineTimer();
 
     Serial.print("most recent heartbeat");
-    Serial.println(mostRecentHeartbeat);
+    // Serial.println(mostRecentHeartbeat);
     if (off) {
       nextState = sSENDING_HEARTBEAT;
     } else if (bufferFull()) {
-      bufPush(mostRecentHeartbeat);
+      bufPush(mils);
       nextState = sSENDING_HEARTBEAT;
     } else {
-      bufPush(mostRecentHeartbeat);
+      bufPush(mils);
       nextState = sRECEIVING_HEARTBEAT;
     }
     break;
