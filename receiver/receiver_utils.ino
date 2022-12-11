@@ -31,6 +31,17 @@ void writeToLCD(String msg, int hb) {
 
 // MOTOR
 
+int DIAL_OFF = 0;
+int DIAL_DEAD = 5;
+int DIAL_PROBABLY_DYING = 23;
+int DIAL_PRO_ATHLETE = 42;
+int DIAL_NORMAL_START = 60;
+int DIAL_NORMAL_END = 105;
+int DIAL_NERVOUS_WRECK = 120;
+int DIAL_PROBABLY_DYING_AGAIN = 150;
+int DIAL_ERROR = 170;
+
+
 /**
  * Initialized the motor.
 */
@@ -41,11 +52,46 @@ void initializeMotor(){
 }
 
 /**
+ * Calculate the appropriate dial position based on the heartbeat.
+ */
+int calculateDialPosition(int hb) {
+  if (hb == 404) {
+    return DIAL_OFF;
+  }
+
+  if (hb == 0) {
+    return DIAL_ERROR;
+  }
+
+  if (hb > 0 && hb < 30) {
+    return DIAL_PROBABLY_DYING;
+  }
+
+  if (hb >= 30 && hb < 55) {
+    return DIAL_PRO_ATHLETE;
+  }
+
+  if (hb >= 55 && hb < 105) {
+    return map(hb, 55, 105, DIAL_NORMAL_START, DIAL_NORMAL_END);
+  }
+
+  if (hb >= 105 && hb < 150) {
+    return DIAL_NERVOUS_WRECK;
+  }
+
+  if (hb >= 150) {
+    return DIAL_PROBABLY_DYING_AGAIN;
+  }
+}
+
+/**
  * Update the motor to a specific position.
 */
-void updateMotor(int rotation) {
+void updateMotor(int hb) {
   #ifndef TESTING
-  servo_test.write(rotation); 
+
+  int dial_pos = calculateDialPosition(hb);
+  servo_test.write(dial_pos); 
   delay(1000);
   #endif
 }
