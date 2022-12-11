@@ -5,32 +5,25 @@
 #include <WiFi101.h>
 
 WiFiClient client;
-char buffer[200];
+char buffer[200]; // wifi buffer
 
 int inPin = A0;
 int threshold = 800;
-bool high;
-int oldTime;
-int newTime;
-int bufferLen;
-float prev[5];
-int ind = 0;
 
 // pins
 int buttonPin = 6;
 
 // fsm vars
-// uint32_t savedClock = 0;
 int sensorSignal = 0;
-// uint32_t mostRecentHeartbeat = 0;
 volatile bool off = true;
 bool previouslyBelowThreshold = true;
 
 state CURRENT_STATE;
 
+/**
+ * Setup code
+ */
 void setup() {
-  // put your setup code here, to run once:
-  // Serial.println("starting");
   Serial.begin(9600);
   while (!Serial)
     ;
@@ -52,6 +45,9 @@ void setup() {
   CURRENT_STATE = sOFF;
 }
 
+/**
+ * Loop code
+ */
 void loop() {
 #ifndef TESTING
   updateInputs();
@@ -60,12 +56,15 @@ void loop() {
 #endif
 }
 
+/** Toggles the button. */
 void togglePower() {
   off = !off;
 }
 
+/**
+ * Update the FSM and undergo state transitions if applicable.
+ */
 state updateFsm(state curState, uint32_t mils, int sensorSignal) {
-  //  Serial.println(curState);
   state nextState;
   switch (curState) {
   case sOFF:
@@ -89,7 +88,6 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
     if (off) {
       nextState = sSENDING_HEARTBEAT;
     } else if (sensorSignal > threshold && previouslyBelowThreshold) {
-      // mostRecentHeartbeat = millis();
       previouslyBelowThreshold = false;
       nextState = sSTORING_HEARTBEAT;
     } else if (sensorSignal <= threshold) {
@@ -100,11 +98,11 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
     }
     break;
   case sSTORING_HEARTBEAT:
-    // reset the flatline timer
+    // reset the flatline timer every time a heartbeat is stored
     restartFlatlineTimer();
 
     Serial.print("most recent heartbeat");
-    // Serial.println(mostRecentHeartbeat);
+    Serial.println(mils);
     if (off) {
       nextState = sSENDING_HEARTBEAT;
     } else if (bufferFull()) {
@@ -136,11 +134,12 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
   return nextState;
 }
 
+/** Update the sensor signal based on the sensor reading. */
 void updateInputs() {
   sensorSignal = analogRead(inPin);
 }
 
-// Interrupt Service Routines
+// Interrupt Service Routine
 /** Clear buffer if no heartbeat for 5 seconds (based on TC implementation). */
 void TC3_Handler() {
   TC3->COUNT16.INTFLAG.reg |= TC_INTFLAG_MC0;

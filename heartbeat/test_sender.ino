@@ -1,5 +1,3 @@
-// #include "heartbeat.h"
-
 /*
  * A struct to keep all state inputs in one place
  */
@@ -12,12 +10,9 @@ typedef struct {
  * A struct to keep all state variables in one place
  */
 typedef struct {
-  // uint32_t savedClock;
-  // uint32_t mostRecentHeartbeat;
   bool previouslyBelowThreshold;
   bool off;
   uint32_t buf[bufLen];
-  // any global
 } state_vars;
 
 bool test_transition(state start_state,
@@ -56,10 +51,9 @@ bool bufEq(uint32_t gbuf[], uint32_t test_buf[]) {
   return true;
 }
 
+/** Converts buffer into a string, which it prints to the given array. */
 void buf2str(uint32_t buffr[], char s_to_print[]) {
-  // for (int i = 0; i < bufLen; i++) {
   sprintf(s_to_print, "{ %4ld, %4ld, %4ld, %4ld, %4ld }", buffr[0], buffr[1], buffr[2], buffr[3], buffr[4]);
-  // }
 }
 
 /*
@@ -76,13 +70,6 @@ bool test_transition(state start_state,
                      state_vars end_state_vars,
                      bool verbos) {
 
-  // if (fill_the_buffer) {
-  //   const int interval = 990;
-  //   for (int i = 0; i < 7 * interval; i += interval) {
-  //     bufPush(i);
-  //   }
-  // }
-
   // set state variables
   previouslyBelowThreshold = start_state_vars.previouslyBelowThreshold;
   off = start_state_vars.off;
@@ -95,10 +82,6 @@ bool test_transition(state start_state,
     }
   }
 
-  char s_to_print[200];
-  sprintf(s_to_print, "Inputs: mils %ld | sensorSignal %d", test_state_inputs.mils, test_state_inputs.sensorSignal);
-  Serial.println(s_to_print);
-
   state result_state = updateFsm(start_state, test_state_inputs.mils, test_state_inputs.sensorSignal);
   bool passed_test = (end_state == result_state and
                       // savedClock == end_state_vars.savedClock and
@@ -106,7 +89,6 @@ bool test_transition(state start_state,
                       previouslyBelowThreshold == end_state_vars.previouslyBelowThreshold and
                       off == end_state_vars.off and
                       bufEq(buf, end_state_vars.buf));
-  // passed_test = false;
   if (!verbos) {
     return passed_test;
   } else if (passed_test) {
@@ -136,9 +118,7 @@ bool test_transition(state start_state,
   }
 }
 
-/*
- * REPLACE THE FOLLOWING 6 LINES WITH YOUR TEST CASES
- */
+// Test cases
 const int num_tests = 10;
 const uint32_t null_buf[] = {0, 0, 0, 0, 0};
 const state test_states_in[10] = {(state)1, (state)1, (state)2, (state)2, (state)2, (state)3, (state)3, (state)3, (state)4, (state)4};
@@ -146,18 +126,6 @@ const state test_states_out[10] = {(state)1, (state)2, (state)2, (state)3, (stat
 const state_inputs test_input[10] = {{1000, 5}, {1000, 5}, {1000, 750}, {1000, 850}, {1000, 1000}, {1000, 1000}, {1000, 1000}, {1000, 1000}, {1000, 1000}, {1000, 1000}};
 const state_vars test_in_vars[10] = {{false, true, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 0, 0}}, {true, false, {0, 0, 0, 0, 0}}, {false, true, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 404, 404}}, {false, true, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 0, 0}}, {false, true, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 0, 0}}};
 const state_vars test_out_vars[10] = {{false, true, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 0, 0}}, {true, false, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 0, 0}}, {false, true, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 1000, 0}}, {false, true, {0, 0, 0, 0, 0}}, {false, false, {1000, 0, 0, 0, 0}}, {false, true, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 0, 0}}};
-// const bool fill_buf[10] = {false, false, false, false, false, false, true, false, false, false};
-// const int num_tests = 24;
-// const state test_states_in[1] = {(state)1};
-// const state test_states_out[24] = {(state)1};
-// const state_vars test_out_vars[24] = {{1, 2, UP, 4, 4, 1, 2, 500, 4}, {1, 2, RIGHT, 0, 1, 2, 0, 1600, -1}, {0, 0, DOWN, 0, 16, 0, 1000, 42069, -1}, {0, 0, UP, 0, 16, 0, 1000, 42069, -1}, {0, 0, DOWN, 0, 16, 0, 1000, 42069, 4}, {0, 1, DOWN, 1, 16, 0, 1000, 41000, 1}, {0, 2, UP, 0, 13, 4, 1000, 1000, 2}, {0, 1, DOWN, 0, 16, 0, 4, 0, 1}, {2, 4, DOWN, 4, 4, 3, 1, 3, 2}, {0, 3, RIGHT, 0, 2, 0, 1000, 42000, 4}, {0, 0, LEFT, 1, 16, 0, 1000, 41000, 2}, {0, 0, LEFT, 0, 16, 0, 1000, 41000, 0}, {0, 0, DOWN, 0, 15, 4, 0, 1, 2}, {0, 0, UP, 0, 15, 2, 1, 4, 1}, {0, 0, LEFT, 7, 7, 4, 0, 0, 1}, {2, 4, UP, 0, 2, 2, 1000, 42000, 3}, {1, 0, UP, 1, 15, 4, 950, 42069, 2}, {0, 0, LEFT, 0, 15, 4, 1000, 41000, 1}, {0, 0, RIGHT, 0, 4, 4, 0, 3, 4}, {4, 3, LEFT, 3, 4, 2, 4, 1600, -1}, {0, 0, LEFT, 1, 16, 3, 1000, 41000, 0}, {0, 0, LEFT, 0, 16, 4, 1000, 41000, 0}, {0, 0, DOWN, 0, 15, 0, 0, 1, 4}, {0, 0, UP, 0, 15, 2, 3, 2, 4}};
-
-// const state test_states_in[24] = {(state)1, (state)1, (state)1, (state)1, (state)2, (state)2, (state)2, (state)3, (state)3, (state)4, (state)4, (state)4, (state)5, (state)5, (state)5, (state)6, (state)6, (state)6, (state)7, (state)1, (state)4, (state)4, (state)5, (state)5};
-// const state test_states_out[24] = {(state)1, (state)1, (state)2, (state)6, (state)2, (state)3, (state)3, (state)4, (state)7, (state)4, (state)5, (state)5, (state)2, (state)6, (state)7, (state)6, (state)1, (state)7, (state)7, (state)1, (state)5, (state)5, (state)2, (state)6};
-// const state_inputs test_input[24] = {{3, RIGHT, 600}, {3, DOWN, 1600}, {0, UP, 42069}, {0, RIGHT, 42069}, {0, DOWN, 42069}, {1, DOWN, 42069}, {0, UP, 2000}, {0, RIGHT, 2}, {0, LEFT, 3}, {0, UP, 42069}, {2, DOWN, 42069}, {0, DOWN, 42069}, {2, RIGHT, 4}, {3, LEFT, 1}, {2, UP, 0}, {4, DOWN, 42069}, {1, UP, 42069}, {2, DOWN, 42069}, {4, DOWN, 3}, {3, DOWN, 1600}, {2, DOWN, 42069}, {0, DOWN, 42069}, {4, DOWN, 3}, {3, LEFT, 0}};
-// const state_vars test_in_vars[24] = {{1, 2, UP, 4, 4, 1, 2, 500, 4}, {1, 2, RIGHT, 0, 1, 2, 0, 1000, 0}, {0, 0, DOWN, 0, 16, 0, 1000, 41000, -1}, {0, 0, UP, 0, 16, 0, 1000, 41000, -1}, {0, 0, DOWN, 0, 16, 0, 1000, 42069, 4}, {0, 0, DOWN, 0, 16, 0, 1000, 41000, 1}, {0, 3, UP, 0, 13, 4, 1000, 1000, 2}, {0, 1, DOWN, 0, 16, 0, 4, 0, 1}, {2, 4, DOWN, 4, 4, 3, 1, 3, 2}, {0, 3, RIGHT, 0, 2, 0, 1000, 42000, 4}, {0, 0, DOWN, 0, 16, 0, 1000, 41000, 2}, {0, 0, DOWN, 0, 16, 0, 1000, 41000, 0}, {0, 0, DOWN, 0, 15, 4, 0, 1, 2}, {0, 0, UP, 0, 15, 2, 1, 4, 1}, {0, 0, LEFT, 7, 7, 4, 0, 0, 1}, {2, 4, UP, 0, 2, 2, 1000, 42000, 3}, {5, 0, UP, 1, 15, 3, 1000, 41000, 1}, {0, 0, LEFT, 0, 15, 4, 1000, 41000, 1}, {0, 0, RIGHT, 0, 4, 4, 0, 3, 4}, {4, 3, LEFT, 3, 4, 2, 4, 500, 0}, {0, 0, DOWN, 0, 16, 3, 1000, 41000, 0}, {0, 0, DOWN, 0, 16, 4, 1000, 41000, 0}, {0, 0, DOWN, 0, 15, 0, 0, 1, 4}, {0, 0, UP, 0, 15, 2, 3, 2, 4}};
-// const state_vars test_out_vars[24] = {{1, 2, UP, 4, 4, 1, 2, 500, 4}, {1, 2, RIGHT, 0, 1, 2, 0, 1600, -1}, {0, 0, DOWN, 0, 16, 0, 1000, 42069, -1}, {0, 0, UP, 0, 16, 0, 1000, 42069, -1}, {0, 0, DOWN, 0, 16, 0, 1000, 42069, 4}, {0, 1, DOWN, 1, 16, 0, 1000, 41000, 1}, {0, 2, UP, 0, 13, 4, 1000, 1000, 2}, {0, 1, DOWN, 0, 16, 0, 4, 0, 1}, {2, 4, DOWN, 4, 4, 3, 1, 3, 2}, {0, 3, RIGHT, 0, 2, 0, 1000, 42000, 4}, {0, 0, LEFT, 1, 16, 0, 1000, 41000, 2}, {0, 0, LEFT, 0, 16, 0, 1000, 41000, 0}, {0, 0, DOWN, 0, 15, 4, 0, 1, 2}, {0, 0, UP, 0, 15, 2, 1, 4, 1}, {0, 0, LEFT, 7, 7, 4, 0, 0, 1}, {2, 4, UP, 0, 2, 2, 1000, 42000, 3}, {1, 0, UP, 1, 15, 4, 950, 42069, 2}, {0, 0, LEFT, 0, 15, 4, 1000, 41000, 1}, {0, 0, RIGHT, 0, 4, 4, 0, 3, 4}, {4, 3, LEFT, 3, 4, 2, 4, 1600, -1}, {0, 0, LEFT, 1, 16, 3, 1000, 41000, 0}, {0, 0, LEFT, 0, 16, 4, 1000, 41000, 0}, {0, 0, DOWN, 0, 15, 0, 0, 1, 4}, {0, 0, UP, 0, 15, 2, 3, 2, 4}};
-// const int num_tests = 24;
 
 /*
  * Runs through all the test cases defined above
