@@ -31,17 +31,6 @@ void writeToLCD(String msg, int hb) {
 
 // MOTOR
 
-int DIAL_OFF = 0;
-int DIAL_DEAD = 5;
-int DIAL_PROBABLY_DYING = 23;
-int DIAL_PRO_ATHLETE = 42;
-int DIAL_NORMAL_START = 60;
-int DIAL_NORMAL_END = 105;
-int DIAL_NERVOUS_WRECK = 120;
-int DIAL_PROBABLY_DYING_AGAIN = 150;
-int DIAL_ERROR = 170;
-
-
 /**
  * Initialized the motor.
 */
@@ -55,33 +44,43 @@ void initializeMotor(){
  * Calculate the appropriate dial position based on the heartbeat.
  */
 int calculateDialPosition(int hb) {
+  // OFF
   if (hb == 404) {
-    return DIAL_OFF;
+    return 0;
   }
 
-  if (hb == 0) {
-    return DIAL_ERROR;
+  // ERROR
+  else if (hb == 0) {
+    return 170;
   }
 
-  if (hb > 0 && hb < 30) {
-    return DIAL_PROBABLY_DYING;
+  // PROBABLY DYING
+  else if (hb > 0 && hb < 30) {
+    return 23;
   }
 
-  if (hb >= 30 && hb < 55) {
-    return DIAL_PRO_ATHLETE;
+  // PRO ATHLETE
+  else if (hb >= 30 && hb < 55) {
+    return 42;
   }
 
-  if (hb >= 55 && hb < 105) {
-    return map(hb, 55, 105, DIAL_NORMAL_START, DIAL_NORMAL_END);
+  // NORMAL
+  else if (hb >= 55 && hb < 105) {
+    // return 90;
+   return map(hb, 55, 105, 60, 105);
   }
 
-  if (hb >= 105 && hb < 150) {
-    return DIAL_NERVOUS_WRECK;
+  // NERVOUS WRECK
+  else if (hb >= 105 && hb < 150) {
+    return 120;
   }
 
-  if (hb >= 150) {
-    return DIAL_PROBABLY_DYING_AGAIN;
+  // PROBABLY DYING AGAIN
+  else if (hb >= 150) {
+    return 150;
   }
+
+  return 170;
 }
 
 /**

@@ -50,6 +50,7 @@ state updateFsm(state curState, uint32_t mils) {
         savedClock = mils;
         nextState = sERROR;
         writeToLCD("ERROR", 0);
+        updateMotor(serverMessage);
         break; // break out of case
       }
        
@@ -58,7 +59,7 @@ state updateFsm(state curState, uint32_t mils) {
         nextState = sOFF;
 
         writeToLCD("OFF", serverMessage);
-        updateMotor(0);
+        updateMotor(serverMessage);
         break;
       }
       // message is a valid heartbeat
