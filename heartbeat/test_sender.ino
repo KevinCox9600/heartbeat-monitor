@@ -16,13 +16,16 @@ typedef struct {
   // uint32_t mostRecentHeartbeat;
   bool previouslyBelowThreshold;
   bool off;
+  // any global
 } state_vars;
 
 bool test_transition(state start_state,
                      state end_state,
                      state_inputs test_state_inputs,
                      state_vars start_state_vars,
-                     state_vars end_state_vars);
+                     state_vars end_state_vars,
+                     bool fill_the_buffer,
+                     bool verbos);
 /*
  * Helper function for printing states
  */
@@ -52,8 +55,16 @@ bool test_transition(state start_state,
                      state end_state,
                      state_inputs test_state_inputs,
                      state_vars start_state_vars,
-                     state_vars end_state_vars) {
-  bool verbos = true;
+                     state_vars end_state_vars,
+                     bool fill_the_buffer,
+                     bool verbos) {
+
+  if (fill_the_buffer) {
+    const int interval = 990;
+    for (int i = 0; i < 7 * interval; i += interval) {
+      bufPush(i);
+    }
+  }
 
   // set state variables
   // savedClock = start_state_vars.savedClock;
@@ -107,6 +118,7 @@ const state test_states_out[10] = {(state)1, (state)2, (state)2, (state)3, (stat
 const state_inputs test_input[10] = {{1000, 5}, {1000, 5}, {1000, 750}, {1000, 850}, {1000, 1000}, {1000, 1000}, {1000, 1000}, {1000, 1000}, {1000, 1000}, {1000, 1000}};
 const state_vars test_in_vars[10] = {{false, true}, {false, false}, {false, false}, {true, false}, {false, true}, {false, false}, {false, true}, {false, false}, {false, true}, {false, false}};
 const state_vars test_out_vars[10] = {{false, true}, {false, false}, {true, false}, {false, false}, {false, true}, {false, false}, {false, true}, {false, false}, {false, true}, {false, false}};
+const bool fill_buf[10] = {false, false, false, false, false, false, true, false, false, false};
 // const int num_tests = 24;
 // const state test_states_in[1] = {(state)1};
 // const state test_states_out[24] = {(state)1};
@@ -126,7 +138,7 @@ bool test_all_tests() {
   for (int i = 0; i < num_tests; i++) {
     Serial.print("Running test ");
     Serial.println(i);
-    if (!test_transition(test_states_in[i], test_states_out[i], test_input[i], test_in_vars[i], test_out_vars[i])) {
+    if (!test_transition(test_states_in[i], test_states_out[i], test_input[i], test_in_vars[i], test_out_vars[i], fill_buf[i], true)) {
       return false;
     }
     Serial.println();
