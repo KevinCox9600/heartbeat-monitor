@@ -1,4 +1,4 @@
-// #include "test_receiver.h" // uncomment this line to run receiver tests
+#include "test_receiver.h" // uncomment this line to run receiver tests
 #include "receiver.h"
 #include <WiFi101.h>
 #include <SPI.h>
@@ -12,7 +12,7 @@ uint32_t savedClock = 0; // last time saved
 int serverMessage = NULL; // the message from the server
 
 #ifdef TESTING
-bool failServer = false;
+int serverValue = NULL;
 #endif
 
 void setup() {
@@ -48,6 +48,7 @@ state updateFsm(state curState, uint32_t mils) {
       serverMessage = get_server_message();
 
       if (count >= 100 || serverMessage == 0) {
+        savedClock = mils; // added for tests --> if there are errors, this could be the problem
         nextState = sERROR;
         writeToLCD("ERROR", 0);
         break; // break out of case

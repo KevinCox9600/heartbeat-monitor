@@ -101,10 +101,8 @@ int get_server_message() {
 }
 #else 
 int get_server_message() {
-  if (failServer) {
-    return 0;
-  } else {
-    return 60;
-  }
+  Serial.print("reading from server (test): ");
+  Serial.println(serverValue);
+  return serverValue;
 }
 #endif
