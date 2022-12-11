@@ -68,6 +68,7 @@ bool bufferFull() {
  */
 void clearBuf() {
   noInterrupts();
+  bufEnd = 0;
   empty = true;
   bufStart = bufEnd;
   interrupts();

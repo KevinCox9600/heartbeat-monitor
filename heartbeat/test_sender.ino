@@ -1,7 +1,7 @@
 // #include "heartbeat.h"
 
 /*
- * A struct to keep all three state inputs in one place
+ * A struct to keep all state inputs in one place
  */
 typedef struct {
   uint32_t mils;
@@ -9,13 +9,14 @@ typedef struct {
 } state_inputs;
 
 /*
- * A struct to keep all 9 state variables in one place
+ * A struct to keep all state variables in one place
  */
 typedef struct {
   // uint32_t savedClock;
   // uint32_t mostRecentHeartbeat;
   bool previouslyBelowThreshold;
   bool off;
+  uint32_t buf[bufLen];
   // any global
 } state_vars;
 
@@ -24,7 +25,6 @@ bool test_transition(state start_state,
                      state_inputs test_state_inputs,
                      state_vars start_state_vars,
                      state_vars end_state_vars,
-                     bool fill_the_buffer,
                      bool verbos);
 /*
  * Helper function for printing states
@@ -44,6 +44,24 @@ char *s2str(state s) {
   }
 }
 
+/**
+ * Given two buffers, determines if they are equal
+ */
+bool bufEq(uint32_t gbuf[], uint32_t test_buf[]) {
+  for (int i = 0; i < bufLen; i++) {
+    if (gbuf[i] != test_buf[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+void buf2str(uint32_t buffr[], char s_to_print[]) {
+  // for (int i = 0; i < bufLen; i++) {
+  sprintf(s_to_print, "{ %4ld, %4ld, %4ld, %4ld, %4ld }", buffr[0], buffr[1], buffr[2], buffr[3], buffr[4]);
+  // }
+}
+
 /*
  * Given a start state, inputs, and starting values for state variables, tests that
  * update_fsm returns the correct end state and updates the state variables correctly
@@ -56,21 +74,26 @@ bool test_transition(state start_state,
                      state_inputs test_state_inputs,
                      state_vars start_state_vars,
                      state_vars end_state_vars,
-                     bool fill_the_buffer,
                      bool verbos) {
 
-  if (fill_the_buffer) {
-    const int interval = 990;
-    for (int i = 0; i < 7 * interval; i += interval) {
-      bufPush(i);
-    }
-  }
+  // if (fill_the_buffer) {
+  //   const int interval = 990;
+  //   for (int i = 0; i < 7 * interval; i += interval) {
+  //     bufPush(i);
+  //   }
+  // }
 
   // set state variables
-  // savedClock = start_state_vars.savedClock;
-  // mostRecentHeartbeat = start_state_vars.mostRecentHeartbeat;
   previouslyBelowThreshold = start_state_vars.previouslyBelowThreshold;
   off = start_state_vars.off;
+  // fill the buffer
+  clearBuf();
+  for (int i = 0; i < bufLen; i++) {
+    uint32_t bufVal = start_state_vars.buf[i];
+    if (bufVal != 404) {
+      bufPush(bufVal);
+    }
+  }
 
   char s_to_print[200];
   sprintf(s_to_print, "Inputs: mils %ld | sensorSignal %d", test_state_inputs.mils, test_state_inputs.sensorSignal);
@@ -81,7 +104,8 @@ bool test_transition(state start_state,
                       // savedClock == end_state_vars.savedClock and
                       // mostRecentHeartbeat == end_state_vars.mostRecentHeartbeat and
                       previouslyBelowThreshold == end_state_vars.previouslyBelowThreshold and
-                      off == end_state_vars.off);
+                      off == end_state_vars.off and
+                      bufEq(buf, end_state_vars.buf));
   // passed_test = false;
   if (!verbos) {
     return passed_test;
@@ -99,11 +123,14 @@ bool test_transition(state start_state,
     Serial.println(s_to_print);
     sprintf(s_to_print, "Inputs: mils %ld | sensorSignal %d", test_state_inputs.mils, test_state_inputs.sensorSignal);
     Serial.println(s_to_print);
-    sprintf(s_to_print, "          %24s | %3s", "previouslyBelowThreshold", "off");
+    sprintf(s_to_print, "          %24s | %3s | %15s", "previouslyBelowThreshold", "off", "buffer");
     Serial.println(s_to_print);
-    sprintf(s_to_print, "expected: %24d | %3d", end_state_vars.previouslyBelowThreshold, end_state_vars.off);
+    char stp2[200];
+    buf2str(end_state_vars.buf, stp2);
+    sprintf(s_to_print, "expected: %24d | %3d | %15s", end_state_vars.previouslyBelowThreshold, end_state_vars.off, stp2);
     Serial.println(s_to_print);
-    sprintf(s_to_print, "actual:   %24d | %3d", previouslyBelowThreshold, off);
+    buf2str(buf, stp2);
+    sprintf(s_to_print, "actual:   %24d | %3d | %15s", previouslyBelowThreshold, off, stp2);
     Serial.println(s_to_print);
     return false;
   }
@@ -113,12 +140,13 @@ bool test_transition(state start_state,
  * REPLACE THE FOLLOWING 6 LINES WITH YOUR TEST CASES
  */
 const int num_tests = 10;
+const uint32_t null_buf[] = {0, 0, 0, 0, 0};
 const state test_states_in[10] = {(state)1, (state)1, (state)2, (state)2, (state)2, (state)3, (state)3, (state)3, (state)4, (state)4};
 const state test_states_out[10] = {(state)1, (state)2, (state)2, (state)3, (state)4, (state)2, (state)4, (state)4, (state)1, (state)2};
 const state_inputs test_input[10] = {{1000, 5}, {1000, 5}, {1000, 750}, {1000, 850}, {1000, 1000}, {1000, 1000}, {1000, 1000}, {1000, 1000}, {1000, 1000}, {1000, 1000}};
-const state_vars test_in_vars[10] = {{false, true}, {false, false}, {false, false}, {true, false}, {false, true}, {false, false}, {false, true}, {false, false}, {false, true}, {false, false}};
-const state_vars test_out_vars[10] = {{false, true}, {false, false}, {true, false}, {false, false}, {false, true}, {false, false}, {false, true}, {false, false}, {false, true}, {false, false}};
-const bool fill_buf[10] = {false, false, false, false, false, false, true, false, false, false};
+const state_vars test_in_vars[10] = {{false, true, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 0, 0}}, {true, false, {0, 0, 0, 0, 0}}, {false, true, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 404, 404}}, {false, true, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 0, 0}}, {false, true, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 0, 0}}};
+const state_vars test_out_vars[10] = {{false, true, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 0, 0}}, {true, false, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 0, 0}}, {false, true, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 1000, 0}}, {false, true, {0, 0, 0, 0, 0}}, {false, false, {1000, 0, 0, 0, 0}}, {false, true, {0, 0, 0, 0, 0}}, {false, false, {0, 0, 0, 0, 0}}};
+// const bool fill_buf[10] = {false, false, false, false, false, false, true, false, false, false};
 // const int num_tests = 24;
 // const state test_states_in[1] = {(state)1};
 // const state test_states_out[24] = {(state)1};
@@ -138,7 +166,7 @@ bool test_all_tests() {
   for (int i = 0; i < num_tests; i++) {
     Serial.print("Running test ");
     Serial.println(i);
-    if (!test_transition(test_states_in[i], test_states_out[i], test_input[i], test_in_vars[i], test_out_vars[i], fill_buf[i], true)) {
+    if (!test_transition(test_states_in[i], test_states_out[i], test_input[i], test_in_vars[i], test_out_vars[i], true)) {
       return false;
     }
     Serial.println();
