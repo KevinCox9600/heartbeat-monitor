@@ -17,12 +17,14 @@ void initializeLCD() {
 
 /**
  * Clears the old LCD message and writes a new message and heartbeat.
+ * Takes in a string message and a int heartbeat.
 */
 void writeToLCD(String msg, int hb) {
   #ifndef TESTING
   lcd.clear();
   lcd.print(msg);
   lcd.setCursor(0, 1);
+  // if the message is OFF or ERROR, don't write hb
   if(!(msg == "OFF" || msg == "ERROR")){
     lcd.print(hb);
   }
@@ -42,6 +44,8 @@ void initializeMotor(){
 
 /**
  * Calculate the appropriate dial position based on the heartbeat.
+ * 
+ * Takes in a heartbeat int and outputs an int that represents a position on the dial.
  */
 int calculateDialPosition(int hb) {
   // OFF
@@ -66,7 +70,8 @@ int calculateDialPosition(int hb) {
 
   // NORMAL
   else if (hb >= 55 && hb < 105) {
-    // return 90;
+   // if the heartbeat is in a normal range, 
+   // it can be mapped to indicate approximately where in normal it is
    return map(hb, 55, 105, 60, 105);
   }
 
@@ -79,12 +84,13 @@ int calculateDialPosition(int hb) {
   else if (hb >= 150) {
     return 150;
   }
-
+ 
+  // return ERROR by default
   return 170;
 }
 
 /**
- * Update the motor to a specific position.
+ * Update the motor according the heartbeat (int).
 */
 void updateMotor(int hb) {
   #ifndef TESTING

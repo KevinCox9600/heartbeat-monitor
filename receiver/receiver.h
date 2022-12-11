@@ -1,3 +1,6 @@
+/**
+ * Receiver states
+*/
 typedef enum {
   sRECEIVING,
   sOFF,

@@ -45,6 +45,14 @@ char* s2str(state s) {
 
 /**
  * Tests a transition from one state to another state.
+ * start_state (state) - the state at the start of the transition
+ * end_state (state) - the expected state at the end of the transition
+ * inputs (state_inputs) - the inputs (besides state) to the FSM (just mils)
+ * start_vars (state_vars) - the variables at the start of the transition
+ * end_vars (state_vars) - the expected variables at the end of the transition
+ * server_value (int) - the value the server should output if read
+ * 
+ * Returns a boolean to indicate success of test
 */
 bool test_transition(
    state start_state,
@@ -64,6 +72,7 @@ bool test_transition(
         end_vars.saved_clock == savedClock &&
         end_vars.server_message == serverMessage);
 
+  // if test fails, output detailed results
   if (!test_result) {
     char s_to_print[200];
     Serial.println(s2str(start_state));
@@ -96,18 +105,6 @@ const state_vars test_in_vars[10] = {{50, 0}, {50, 0}, {50, 60}, {0, 0}, {0, 404
 const state_vars test_out_vars[10] = {{50, 0}, {1000, 404}, {1000, 60}, {1000, 0}, {0, 404}, {0, 404}, {0, 404}, {0, 60}, {0, 0}, {0, 0}};
 const int server_status[10] = {0, 404, 60, 0, 404, 60, 60, 0, 0, 60};
 const int num_tests = 10;
-
-
-// sRECEIVING->sRECEIVING, mils=100, in: server_message=0, saved_clock=50 out: server_message=0, saved_clock=50
-// sRECEIVING->sOFF, mils=1000, in: server_message=0, saved_clock=50 out: server_message=404 (OFF), saved_clock=1000
-// sRECEIVING->sDISPLAY_HEARTBEAT, mils=1000, in: server_message=60, saved_clock=50 out: server_message=60, saved_clock=0
-// sRECEIVING->sERROR, mils=1000 in: server_message=0, saved_clock=0 out: server_message=60, saved_clock=1000 (make server error)
-// sOFF->sOFF, mils=1000 in: server_message=404, saved_clock=0 out: server_message=404, saved_clock=0
-// sOFF->sRECEIVING, mils=3000 in: server_message=404, saved_clock=0 out: server_message=60, saved_clock=3000
-// sDISPLAY_HEARTBEAT->sDISPLAY_HEARTBEAT, mils=1000 in: server_message=60, saved_clock=0 out: server_message=60, saved_clock=0
-// sDISPLAY_HEARTBEAT->sRECEIVING, mils=3000 in: server_message=60, saved_clock=0 out: server_message=60, saved_clock=3000
-// sERROR->sERROR, mils=1000 in: server_message=0, saved_clock=0 out: server_message=0, saved_clock=0
-// sERROR->sRECEIVING, mils=3000 in: server_message=0, saved_clock=0 out: server_message=60, saved_clock=3000
 
 /*
 * Runs through all the test cases defined above

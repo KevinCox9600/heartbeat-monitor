@@ -4,7 +4,9 @@ int status = WL_IDLE_STATUS;  // the WiFi radio's status
 WiFiClient client;
 char buffer[200];
 
-
+/**
+ * Set up the wifi connection for getting from the server.
+*/
 void setup_wifi() {
   // attempt to connect to WiFi network:
   while ( status != WL_CONNECTED) {
@@ -24,6 +26,7 @@ void setup_wifi() {
 
 /**
  * Check if the client is connected.
+ * Returns connection status.
 */
 bool client_connected() {
   return client.connected();
@@ -47,6 +50,7 @@ bool connect_to_get() {
 
 /**
  * Read the value from the server.
+ * Returns an integer value. 
 */
 int read_from_get() {
   Serial.println("reading");
@@ -77,8 +81,12 @@ int read_from_get() {
 }
 
 #ifndef TESTING
+/**
+ * Tries 101 times to read from the server. 
+ * If the connection errors, it will return 0.
+ * Otherwise, it will return the value of the server (int).
+*/
 int get_server_message() {
-  // try 100 times to read the server message
   int msg = read_from_get();
   int count = 0;
   while (msg == 0 && count < 100) {
@@ -100,6 +108,10 @@ int get_server_message() {
 
 }
 #else 
+/**
+ * A test version of get_server_message. 
+ * Simulate reading from the server.
+*/
 int get_server_message() {
   Serial.print("reading from server (test): ");
   Serial.println(serverValue);
