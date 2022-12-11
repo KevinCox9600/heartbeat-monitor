@@ -1,5 +1,3 @@
-// #define TESTING
-
 typedef enum {
   sOFF = 1,
   sRECEIVING_HEARTBEAT,
