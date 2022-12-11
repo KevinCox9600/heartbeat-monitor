@@ -93,7 +93,7 @@ int get_server_message() {
     msg = read_from_get();
     // increment the count
     count = count + 1;
-      delay(50);
+    delay(50);
   }
 
   return msg;

@@ -41,11 +41,56 @@ void initializeMotor(){
 }
 
 /**
+ * Calculate the appropriate dial position based on the heartbeat.
+ */
+int calculateDialPosition(int hb) {
+  // OFF
+  if (hb == 404) {
+    return 0;
+  }
+
+  // ERROR
+  else if (hb == 0) {
+    return 170;
+  }
+
+  // PROBABLY DYING
+  else if (hb > 0 && hb < 30) {
+    return 23;
+  }
+
+  // PRO ATHLETE
+  else if (hb >= 30 && hb < 55) {
+    return 42;
+  }
+
+  // NORMAL
+  else if (hb >= 55 && hb < 105) {
+    // return 90;
+   return map(hb, 55, 105, 60, 105);
+  }
+
+  // NERVOUS WRECK
+  else if (hb >= 105 && hb < 150) {
+    return 120;
+  }
+
+  // PROBABLY DYING AGAIN
+  else if (hb >= 150) {
+    return 150;
+  }
+
+  return 170;
+}
+
+/**
  * Update the motor to a specific position.
 */
-void updateMotor(int rotation) {
+void updateMotor(int hb) {
   #ifndef TESTING
-  servo_test.write(rotation); 
+
+  int dial_pos = calculateDialPosition(hb);
+  servo_test.write(dial_pos); 
   delay(1000);
   #endif
 }
