@@ -1,4 +1,7 @@
 
+/**
+ * Configure and start the watchdog.
+ */
 void configWatchdog() {
   NVIC_DisableIRQ(WDT_IRQn);
   NVIC_ClearPendingIRQ(WDT_IRQn);
@@ -18,20 +21,17 @@ void configWatchdog() {
     ;
 
   // Configure and enable WDT:
-  // TODO: check that this works, changed from 9 to A
-  WDT->CONFIG.reg = 0xAu; //WDT_CONFIG_PER_10; // 0xAu;
-  // WDT->EWCTRL.reg = WDT_EWCTRL_EWOFFSET_8;
+  WDT->CONFIG.reg = 0xAu;
   WDT->CTRL.reg = WDT_CTRL_ENABLE;
   while (WDT->STATUS.bit.SYNCBUSY)
     ;
-
-  // Enable early warning interrupts on WDT:
-  // reference WDT registers with WDT->register_name.reg
-  // WDT->INTENSET.reg = WDT_INTENSET_EW;
 }
 
+/**
+ * Pet the watchdog to reset the watchdog timer.
+ */
 void petWatchdog() {
-  #ifndef TESTING
+#ifndef TESTING
   WDT->CLEAR.reg |= WDT_CLEAR_CLEAR_KEY;
-  #endif
+#endif
 }

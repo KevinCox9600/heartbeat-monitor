@@ -7,10 +7,10 @@
 WiFiClient client;
 char buffer[200]; // wifi buffer
 
-int inPin = A0;
 int threshold = 800;
 
 // pins
+int inPin = A0;
 int buttonPin = 6;
 
 // fsm vars
@@ -63,6 +63,10 @@ void togglePower() {
 
 /**
  * Update the FSM and undergo state transitions if applicable.
+ * Params:
+ *    curState (state) - the current state of the FSM
+ *    mils (uint32_t) - the current time in milliseconds
+ *    sensorSignal (int) - the analog signal from the heartbeat monitor, from 0 to 1024
  */
 state updateFsm(state curState, uint32_t mils, int sensorSignal) {
   state nextState;
@@ -74,7 +78,6 @@ state updateFsm(state curState, uint32_t mils, int sensorSignal) {
     if (off) {
       nextState = sOFF;
     } else {
-      // savedClock = mils;
       Serial.println("on");
       nextState = sRECEIVING_HEARTBEAT;
     }

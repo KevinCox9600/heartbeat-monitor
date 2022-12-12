@@ -1,10 +1,13 @@
-char ssid[] = "Brown-Guest";  // network SSID (name)
-char pass[] = ""; // for networks that require a password
-int status = WL_IDLE_STATUS;  // the WiFi radio's status
+char ssid[] = "Brown-Guest"; // network SSID (name)
+char pass[] = "";            // for networks that require a password
+int status = WL_IDLE_STATUS; // the WiFi radio's status
 
+/**
+ * Set up the wifi connection for posting to the server.
+ */
 void setup_wifi() {
   // attempt to connect to WiFi network:
-  while ( status != WL_CONNECTED) {
+  while (status != WL_CONNECTED) {
     Serial.print("Attempting to connect to: ");
     Serial.println(ssid);
     status = WiFi.begin(ssid); // WiFi.begin(ssid, pass) for password
@@ -47,7 +50,7 @@ bool connect_to_get() {
 
 void read_from_get() {
   int len = client.available();
-  if (len == 0){
+  if (len == 0) {
     return;
   }
   memset(buffer, 0x0, sizeof(buffer));
@@ -57,7 +60,7 @@ void read_from_get() {
     char c = client.read();
     if (!afterHeart || isDigit(c)) {
       buffer[index] = c;
-      index++;  
+      index++;
     }
     char *rate = strstr(buffer, "HEART");
     if (rate) {
