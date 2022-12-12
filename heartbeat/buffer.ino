@@ -5,7 +5,9 @@ uint32_t buf[bufLen];
 bool empty = true;
 
 /**
- *  Push to the circular buffer, overwriting last value if full
+ * Push to the circular buffer, overwriting last value if full
+ * Params:
+ *    n (uint32_t) - the number to push to the buffer
  */
 void bufPush(uint32_t n) {
   noInterrupts();

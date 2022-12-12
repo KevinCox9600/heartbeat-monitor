@@ -21,8 +21,10 @@ bool test_transition(state start_state,
                      state_vars start_state_vars,
                      state_vars end_state_vars,
                      bool verbos);
-/*
+/**
  * Helper function for printing states
+ * Params:
+ *    s (state) - the state to convert into a string
  */
 char *s2str(state s) {
   switch (s) {
@@ -41,6 +43,9 @@ char *s2str(state s) {
 
 /**
  * Given two buffers, determines if they are equal
+ * Params:
+ *    gbuf (uint_32t array) - the global variable buffer
+ *    test_buf (uint_32t array) - the buffer used for testing
  */
 bool bufEq(uint32_t gbuf[], uint32_t test_buf[]) {
   for (int i = 0; i < bufLen; i++) {
@@ -51,7 +56,12 @@ bool bufEq(uint32_t gbuf[], uint32_t test_buf[]) {
   return true;
 }
 
-/** Converts buffer into a string, which it prints to the given array. */
+/**
+ * Converts buffer into a string, which it prints to the given array.
+ * Params:
+ *    buffr (uint32_t array) - the buffer of heartbeats
+ *    s_to_print (char array) - the array in which to copy the output string
+ */
 void buf2str(uint32_t buffr[], char s_to_print[]) {
   sprintf(s_to_print, "{ %4ld, %4ld, %4ld, %4ld, %4ld }", buffr[0], buffr[1], buffr[2], buffr[3], buffr[4]);
 }
@@ -62,6 +72,14 @@ void buf2str(uint32_t buffr[], char s_to_print[]) {
  * returns true if this is the case (test passed) and false otherwise (test failed)
  *
  * Need to use "verbos" instead of "verbose" because verbose is apparently a keyword
+ *
+ * Params:
+ *    start_state (state) - the starting state
+ *    end_state (state) - the ending state
+ *    test_state_inputs (state_inputs) - the input values for the test
+ *    start_state_vars (state_vars) - the initial variable values
+ *    end_state_vars (state_vars) - the ending state values
+ *    verbos (bool) - whether to give a verbose output
  */
 bool test_transition(state start_state,
                      state end_state,

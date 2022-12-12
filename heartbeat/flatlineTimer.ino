@@ -3,11 +3,14 @@
  * Detects when there has not been a heartbeat for a long time.
  *
  * Is to be restarted at every heartbeat.
- * Will trigger interrupt every 5 seconds. TODO: fix and verify this
+ * Will trigger interrupt every 5 seconds.
  */
 
 const int CLOCKFREQ = 8000 / (2) * 1000; // FIXME;
 
+/**
+ * Set up the flatline timer to be able to run.
+ */
 void setupFlatlineTimer() {
   // Configure and enable GCLK4 for TC:
   GCLK->GENDIV.reg = GCLK_GENDIV_DIV(0) | GCLK_GENDIV_ID(4); // do not divide gclk 4
@@ -36,8 +39,11 @@ void setupFlatlineTimer() {
   Serial.println("Initialized timer!");
 }
 
+/**
+ * Starts the flatline timer to go off every 5 seconds.
+ */
 void startFlatlineTimer() {
-  float freq = 0.1; // FIXME: should be a frequency of 0.2, but make sure this works first
+  float freq = 0.1;
 
   // Turn off interrupts to TC3 on MC0 when configuring
   TC3->COUNT16.INTENCLR.reg |= TC_INTENCLR_MC0;
@@ -47,28 +53,21 @@ void startFlatlineTimer() {
   while (TC3->COUNT16.STATUS.bit.SYNCBUSY)
     ;
   int regNum = 5 * CLOCKFREQ / (1024 * freq);
-  TC3->COUNT16.CC[0].reg = (int) CLOCKFREQ / (1024 * freq);
-//  Serial.print("CC regNum: ");
+  TC3->COUNT16.CC[0].reg = (int)CLOCKFREQ / (1024 * freq);
   Serial.println(regNum);
   while (TC3->COUNT16.STATUS.bit.SYNCBUSY)
     ;
 
   // Turn interrupts to TC3 on MC0 back on when done configuring
   TC3->COUNT16.INTENSET.reg |= TC_INTENSET_MC0;
-
-//  Serial.println("Started timer");
 }
 
 /** Restart the timer from the beginning. */
 void restartFlatlineTimer() {
-  #ifndef TESTING
+#ifndef TESTING
   TC3->COUNT16.INTENCLR.reg |= TC_INTENCLR_MC0;
   TC3->COUNT16.CTRLA.reg &= ~TC_CTRLA_ENABLE;
 
   startFlatlineTimer();
-//  Serial.println("Restarted timer!");
-
-  // TODO (step 8a): Reference pin with PORT->Group[PORTB].register_name.reg
-  // PORT->Group[PORTB].OUTCLR.reg |= 1 << PB_PIN;
-  #endif
+#endif
 }
