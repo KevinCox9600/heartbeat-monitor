@@ -1,11 +1,3 @@
-// buffer use:
-// - fill with heartbeat times
-// - avg heartbeats
-
-// TODO:
-// deal with rollover
-//
-
 const int bufLen = 5;
 int bufStart = 0;
 int bufEnd = 0;
@@ -19,7 +11,7 @@ void bufPush(uint32_t n) {
   noInterrupts();
   buf[bufEnd] = n;
   bufEnd = (bufEnd + 1) % bufLen;
-  // move start forward if necessary; TODO: test this!
+  // move start forward if necessary
   bool bufEndBeyondStart = (bufEnd - bufStart) % bufLen == 1;
   bool bufFullWithStartAtEnd = (bufEnd == 0) && (bufStart == bufLen - 1);
   if (!empty && (bufEndBeyondStart || bufFullWithStartAtEnd)) {
@@ -49,6 +41,7 @@ float bufAvg() {
   return 0.0;
 }
 
+/** Prints the contents of a buffer. */
 void printBuf() {
   for (int i = 0; i < bufLen; i++) {
     int index = (bufStart + i) % bufLen;
@@ -68,6 +61,7 @@ bool bufferFull() {
  */
 void clearBuf() {
   noInterrupts();
+  bufEnd = 0;
   empty = true;
   bufStart = bufEnd;
   interrupts();

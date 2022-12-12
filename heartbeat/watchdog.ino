@@ -31,5 +31,7 @@ void configWatchdog() {
 }
 
 void petWatchdog() {
+  #ifndef TESTING
   WDT->CLEAR.reg |= WDT_CLEAR_CLEAR_KEY;
+  #endif
 }

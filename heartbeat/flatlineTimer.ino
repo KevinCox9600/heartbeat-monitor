@@ -61,6 +61,7 @@ void startFlatlineTimer() {
 
 /** Restart the timer from the beginning. */
 void restartFlatlineTimer() {
+  #ifndef TESTING
   TC3->COUNT16.INTENCLR.reg |= TC_INTENCLR_MC0;
   TC3->COUNT16.CTRLA.reg &= ~TC_CTRLA_ENABLE;
 
@@ -69,4 +70,5 @@ void restartFlatlineTimer() {
 
   // TODO (step 8a): Reference pin with PORT->Group[PORTB].register_name.reg
   // PORT->Group[PORTB].OUTCLR.reg |= 1 << PB_PIN;
+  #endif
 }
