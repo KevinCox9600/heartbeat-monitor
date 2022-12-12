@@ -17,6 +17,10 @@ void setup_wifi() {
   Serial.println();
 }
 
+/**
+ * Posts the value to the server.
+ * Returns an boolean indicating success.
+*/
 bool post_heartrate_to_website(int rate) {
   String data = "{\"heartrate\": \"" + String(rate) + "\"}";
   if (client.connect("clasersohn.pythonanywhere.com", 80)) {
@@ -35,6 +39,9 @@ bool post_heartrate_to_website(int rate) {
   }
 }
 
+/**
+ * Connect to the server and return whether it was a success.
+*/
 bool connect_to_get() {
   if (client.connect("clasersohn.pythonanywhere.com", 80)) {
     client.println("GET /get HTTP/1.1");
@@ -48,6 +55,10 @@ bool connect_to_get() {
   }
 }
 
+/**
+ * Read the value from the server.
+ * Returns an integer value. 
+*/
 void read_from_get() {
   int len = client.available();
   if (len == 0) {
